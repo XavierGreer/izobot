@@ -1,8 +1,8 @@
 import discord
-import ffmpeg
+from datetime import datetime
 from discord.ext import commands
 import youtube_dl
-
+from discord import Embed
 
 class music(commands.Cog):
     def __init__(self, client):
@@ -34,17 +34,31 @@ class music(commands.Cog):
             info = ydl.extract_info(url, download=False)
             url2 = info['formats'][0]['url']
             source = await discord.FFmpegOpusAudio.from_probe(url2, **FFMPEG_OPTIONS)
+
+            embed = Embed(title=url2, description="Description goes here.", colour=0xFF0000,
+                          timestamp=datetime.utcnow())
+            fields = [("Name", "Value", True),
+                      ("Another Field", "This Field is next to the other one.", True),
+                      ("Non-inline field", "This field will appear on its own row.", False)]
+            for name, value, inline in fields:
+                embed.add_field(name=name, value=value, inline=inline)
+            embed.set_author(name="IzoBot")
+            embed.set_footer(text="This is a footer!")
+            # embed.set_thumbnail(url=bot.guild.icon_url)
+            # embed.set_image(url=bot.guild.icon_url)
+            await ctx.send(embed=embed)
             vc.play(source)
 
     @commands.command()
     async def pause(self,ctx):
-        await ctx.voice_client.pause()
         await ctx.send('Paused ⏸️')
+        await ctx.voice_client.pause()
 
     @commands.command()
     async def resume(self, ctx):
-        await ctx.voice_client.resume()
         await ctx.send('Resuming ▶️')
+        await ctx.voice_client.resume()
+
 
 def setup(client):
     client.add_cog(music(client))
